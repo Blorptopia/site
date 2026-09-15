@@ -1,0 +1,17 @@
+{
+	"display_name": "Curse",
+	"summary": "A silly little potion brewing game made for Juniper's game jam",
+	"created_at": "2026-05-19",
+	"tags": [
+		"typescript",
+		"lit"
+	],
+	"developed_with": {
+		"employer": null,
+		"developers": 7
+	},
+	"links": {
+		"demo": "https://curse.blorptopia.workers.dev",
+		"github": "https://github.com/blorptopia/curse"
+	}
+}
