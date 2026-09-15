@@ -1,0 +1,15 @@
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+	<h2>What does turnuva do</h2>
+	<ul>
+		<li>Keeps track of scores per match</li>
+		<li>"Bucket" matchmaking where everyone in the bucket plays against eachother</li>
+		<li>Bracket matchmaking, where you play until defeated.</li>
+		<li>Visualizes the entire process so it's transparent for the players</li>
+	</ul>
+	<h2>History</h2>
+	<p>
+		Turnuva was initially a Svelte-Kit app, however it was used as our test-project for our migration over to Lit.
+	</p>
+{% endblock %}

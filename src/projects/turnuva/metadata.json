@@ -1,0 +1,16 @@
+{
+	"display_name": "Turnuva",
+	"summary": "A table tennis tournament tracking platform",
+	"created_at": "2024-11-12",
+	"tags": [
+		"typescript",
+		"lit",
+		"svelte"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 2
+	},
+	"links": {
+	}
+}
