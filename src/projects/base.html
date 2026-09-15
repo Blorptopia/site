@@ -28,8 +28,11 @@
 			<dd>{{ projects_metadata.tags[tag].display_name }}
 		{% endfor %}
 		<dt>Links</dt>
+		{% if project_metadata.links.demo %}
+			<dd><a href="{{ project_metadata.links.demo | escape }}">Demo</a></dd>
+		{% endif %}
 		{% if project_metadata.links.github %}
-		<dd><a href="{{ project_metadata.links.github | escape }}">GitHub</a></dd>
+			<dd><a href="{{ project_metadata.links.github | escape }}">GitHub</a></dd>
 		{% endif %}
 		{% for blog_slug in project_metadata.links.get("blog_slugs", []) %}
 			{% set post = per_post_metadata[blog_slug] %}
