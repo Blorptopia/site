@@ -50,6 +50,18 @@
 		},
 		"svelte": {
 			"display_name": "Svelte"
+		},
+		"react_native": {
+			"display_name": "React native"
+		},
+		"react": {
+			"display_name": "React"
+		},
+		"mariadb": {
+			"display_name": "MariaDB"
+		},
+		"express": {
+			"display_name": "Express"
 		}
 	},
 	"employers": {

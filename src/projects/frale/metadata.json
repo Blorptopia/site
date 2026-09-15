@@ -1,0 +1,23 @@
+{
+	"display_name": "Frale",
+	"summary": "An app to manage the attendance and apprentice documentation",
+	"created_at": "2024-02-09",
+	"tags": [
+		"typescript",
+		"express",
+		"react_native",
+		"react",
+		"lit",
+		"rust",
+		"axum",
+		"sql",
+		"postgres",
+		"mariadb"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 3
+	},
+	"links": {
+	}
+}

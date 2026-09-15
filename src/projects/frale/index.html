@@ -1,0 +1,17 @@
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+	<h2>History</h2>
+	<p>
+		Frale started out as an app to track the attendance of apprentices, made in React Native and Express on the backend with some C# tools on the backend.
+		However after some time the goal of the app changed to an app to track apprentice documentation and reviews of them.
+
+		As we unfortunately could not get access to the tools to work with React native and the backend had some architectual flaws we could not really incrementally rewrite, we moved to our Lit and Axum tech stack later down the road.
+	</p>
+	<h2>My work</h2>
+	<ul>
+		<li>I was tasked with doing a security review of the backend and found a few issues, sending in patches to fix the most critical of them</li>
+		<li>I maintained the React native app while developing the new app</li>
+		<li>I wrote the both the new backend and frontend myself</li>
+	</ul>
+{% endblock %}
