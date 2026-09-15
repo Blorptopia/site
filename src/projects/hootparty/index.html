@@ -1,0 +1,35 @@
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+	<h2>What is Hootparty</h2>
+	<p>
+		Hootparty was our custom platform for running quizzes live, similar to what <a href="https://kahoot.com">Kahoot</a> provides.
+
+		Hootparty supports a few additional quality of life features compared to Kahoot
+	</p>
+	<ul>
+		<li>An quiz admin panel seperate from the host UI for additional details and remote administration</li>
+		<li>Reconnecting after losing connection to the server</li>
+	</ul>
+	<p>In addition to the extra quality of life features, Hootparty supports a few more question types</p>
+	<ul>
+		<li>A map of the world where you need to click the objective</li>
+		<li>Blurring the alternatives, inspired by <a href="https://github.com/ept-team">EPT's</a> ept-hoot</li>
+		<li>Question that mimicks nano-learning's UI and requires you to read through a bunch of nonsense text</li>
+		<li>Highlight all the words in the text fitting the objective (Highlight all the buzzwords)</li>
+		<li>How tall is this thing/person</li>
+		<li>Switcharoo - where the alternatives swap around when clicked</li>
+		<li>Try to answer <em>as similar</em> as the others answering the question</li>
+	</ul>
+	<h2>My role</h2>
+	<p>
+		I created the
+	</p>
+	<ul>
+		<li>Backend</li>
+		<li>The logic behind the frontend</li>
+	</ul>
+	<p>
+		while the others made minigames, the design and a few bug fixes
+	</p>
+{% endblock %}

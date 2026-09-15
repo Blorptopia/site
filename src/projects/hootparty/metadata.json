@@ -1,0 +1,19 @@
+{
+	"display_name": "Hootparty",
+	"summary": "A live quiz platform",
+	"created_at": "2025-11-20",
+	"tags": [
+		"typescript",
+		"lit",
+		"rust",
+		"axum",
+		"sql",
+		"postgres"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 5
+	},
+	"links": {
+	}
+}
