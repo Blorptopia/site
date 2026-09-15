@@ -1,0 +1,12 @@
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+	<h2>History</h2>
+	<p>
+		Metro was made to export metrics in the Prometheus format from pfSense so we could use it in Grafana and get alerts from it.
+	</p>
+	<p>
+		While there is an exact date listed here, this is a bit as this is the date of the first Grafana alert triggered for Metro.
+		Metro was initially uploaded via ssh - not to any git repo. The correct date is unfortunately lost as the server we used for Metro initially was formatted.
+	</p>
+{% endblock %}

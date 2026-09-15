@@ -62,6 +62,21 @@
 		},
 		"express": {
 			"display_name": "Express"
+		},
+		"javascript": {
+			"display_name": "JavaScript"
+		},
+		"grafana": {
+			"display_name": "Grafana"
+		},
+		"prometheus": {
+			"display_name": "Prometheus"
+		},
+		"pfsense": {
+			"display_name": "pfSense"
+		},
+		"opnsense": {
+			"display_name": "OPNSense"
 		}
 	},
 	"employers": {

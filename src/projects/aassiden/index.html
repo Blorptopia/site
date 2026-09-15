@@ -1,0 +1,38 @@
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+	<h2>History</h2>
+	<p>
+		This project started back in 2023 due to a discussion about what to do with the network, 
+		where I pitched the idea of having a central router with a VLAN per classroom instead of having them all as fully seperate networks using consumer grade routers.
+		I made some visualizations for this approach, and eventually landed on an approach and deployed it using pfSense.
+
+		In 2026 Drammen kommune was contacted to made this a work project instead, while at the same time adding a few more collaborators.
+	</p>
+	<h3>Core network upgrades</h3>
+	<p>
+		Our first incremental upgrade was adding monitoring of the entire network using Grafana and VictoriaMetrics using our own <a href="/projects/metro">Metro prometheus exporter</a> to support exporting from pfSense.
+	</p>
+	<p>
+		After that we got access to another WAN, which we connected up and load balanced connections through so each connection state would randomly be placed on WAN1 or WAN2 resulting in roughly 2 GBPS as long as the load is spread out across multiple connections.
+		However, the connection between our core router and our main switch was only 1 GBPS, so we moved from one ethernet cable to two combined in a load aggrigating group to acheive 2 GBPS with the same tradeoff as with dual-wan.
+	</p>
+	<p>
+		The teachers sometimes did a project teaching the student web-scraping, which resulted in our IP being blocked from both Akamai and Wikipedia despite their efforts to educate them about robots.txt.
+		To solve this we started isolating each classroom on their own public IP,
+		and rotating whenever unexpected blocks happened. To stop getting blocked entirely we added a toggleable setting that allowed us to tunnel all network traffic through a consumer VPN to avoid our IPs reputation being ruined.
+	</p>
+	<p>
+		Eventually however, the server we used to run pfSense on started failing and we needed to switch away. Sadly our only alternative was a downgrade as it only had two ethernet ports.
+		The licensing-scheme we got our pfSense license through was also no longer available and our previous license is hardware-bound, so we decided to migrate to OPNSense while we were at it to get the same features we expected. In the process of migrating server we also moved our reverse proxy away from HAProxy on pfSense to Kubernetes.
+	</p>
+	<h2>Services</h2>
+	<p>
+		The students sometimes wants to run their services persistently and expose them to the world, and this is what we deployed Kubernetes for.
+		The idea was that since we have multiple quite weak nodes, we can combine them into a larger cluster and let the students deploy whatever they want on it as it supports proper access control.
+		However theory aside, this only ended up being used by the teachers unfortunately as the kubernetes manifests is a bit too overwhelming for most students.
+	</p>
+	<p>
+		We also offered an alternative through a Proxmox cluster with access control, though a bit less strict.
+	</p>
+{% endblock %}

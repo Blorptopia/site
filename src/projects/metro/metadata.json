@@ -1,0 +1,16 @@
+{
+	"display_name": "Metro",
+	"summary": "A custom prometheus exporter for pfSense",
+	"created_at": "2023-05-08",
+	"tags": [
+		"javascript",
+		"prometheus"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 1
+	},
+	"links": {
+		"github": "https://github.com/kubeside/images/tree/master/images/metro"
+	}
+}
