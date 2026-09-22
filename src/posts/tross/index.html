@@ -1,11 +1,11 @@
 {% extends "posts/base.html" %}
 {% block head %}
 	{{ super() }}
-    <script type="module" src="visualizations/mode-switching.ts"></script>
-    <script type="module" src="visualizations/chunk-splitting.ts"></script>
-    <script type="module" src="visualizations/yielding.ts"></script>
-    <script type="module" src="visualizations/poll-iterator-comparison.ts"></script>
-    <script type="module" src="../../syntax-highlighting.ts"></script>
+    <script type="module" src="visualizations/mode-switching.ts" async></script>
+    <script type="module" src="visualizations/chunk-splitting.ts" async></script>
+    <script type="module" src="visualizations/yielding.ts" async></script>
+    <script type="module" src="visualizations/poll-iterator-comparison.ts" async></script>
+    <script type="module" src="../../syntax-highlighting.ts" async></script>
 
 {% endblock %}
 {% block post_content %}
