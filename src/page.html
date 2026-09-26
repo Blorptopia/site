@@ -12,6 +12,9 @@
 		{# Imports #}
 		<link rel="stylesheet" href="/global.css">
 		<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Atom feed">
+		{% if ssg_live_reload %}
+			<script src="/live_reload.ts" type="module"></script>
+		{% endif %}
 
 		{# Analytics #}
 		<script data-goatcounter="https://blorptopia.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

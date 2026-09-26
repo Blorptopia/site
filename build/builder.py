@@ -12,7 +12,7 @@ from .models.project import ProjectMetadata, ProjectsMetadata
 
 _log = logging.getLogger(__name__)
 
-async def build_site(root_path: Path, *, keep_build_root: bool = False) -> None:
+async def build_site(root_path: Path, *, keep_build_root: bool = False, live_reload: bool = False) -> None:
 	dist_path = root_path / "dist"
 	source_path = root_path / "src"
 	
@@ -22,7 +22,7 @@ async def build_site(root_path: Path, *, keep_build_root: bool = False) -> None:
 	build_root.mkdir()
 	
 	try:
-		context = _BuildContext(source_path, build_root)
+		context = _BuildContext(source_path, build_root, live_reload=live_reload)
 		
 		# Copy over assets needed to build html pages
 		await context.copy_over_assets()
@@ -106,14 +106,19 @@ class _BuildContext:
 
 			This needs to be inside the scope of the package.json
 			It is the callers responsibility to clean this up after building
+		live_reload:
+			If live reload is enabled
 	"""
 	def __init__(
 			self,
 			source_path: Path,
 			build_root: Path,
+			*,
+			live_reload: bool = False
 		) -> None:
 		self._source_path = source_path
 		self._vite_root: Path = build_root / "vite"
+		self._live_reload = live_reload
 		self._jinja_environment = jinja2.Environment(
 			loader=jinja2.FileSystemLoader(source_path),
 			# While we don't currently use async in any of our templates, we want to in the future
@@ -162,6 +167,8 @@ class _BuildContext:
 				The template path passed into this function
 			open_relative:
 				A function that allows you to open a file relative to the template's parent directory
+			ssg_live_reload:
+				If live reload is enabled
 
 		Arguments:
 			template_path:
@@ -190,7 +197,8 @@ class _BuildContext:
 		context.update({
 			"template_name": template_name,
 			"template_path": template_path,
-			"open_relative": lambda sub_path: open(template_path.parent / sub_path)
+			"open_relative": lambda sub_path: open(template_path.parent / sub_path),
+			"ssg_live_reload": self._live_reload
 		})
 
 		output = await template.render_async(**context)
