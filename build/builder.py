@@ -148,7 +148,7 @@ class _BuildContext:
 		for path in self._source_path.glob("**/*"):
 			if not path.is_file():
 				continue
-			allowed_suffixes = ["ts", "css", "png", "jpg", "jpeg"]
+			allowed_suffixes = ["ts", "css", "png", "jpg", "jpeg", "svg"]
 			if path.suffix[1:] not in allowed_suffixes:
 				continue
 			_log.debug("copying over %s to vite root", path)
