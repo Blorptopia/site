@@ -1,0 +1,63 @@
+# Deny AI crawlers
+User-Agent: GPTBot
+Deny: /
+
+User-Agent: ChatGPT-User
+Deny: /
+
+User-Agent: OAI-SearchBot
+Deny: /
+
+User-Agent: ClaudeBot
+Deny: /
+
+User-Agent: Claude-User
+Deny: /
+
+User-Agent: Claude-SearchBot
+Deny: /
+
+User-Agent: Google-Extended
+Deny: /
+
+User-Agent: Gemini-Deep-Research
+Deny: /
+
+User-Agent: PerplexityBot
+Deny: /
+
+User-Agent: Perplexity-User
+Deny: /
+
+User-Agent: Meta-ExternalAgent
+Deny: /
+
+User-Agent: Meta-WebIndexer
+Deny: /
+
+User-Agent: Bytespider
+Deny: /
+
+User-Agent: Amazonbot
+Deny: /
+
+User-Agent: DuckAssistBot
+Deny: /
+
+User-Agent: MistralAI-User
+Deny: /
+
+User-Agent: Diffbot
+Deny: /
+
+User-Agent: ICC-Crawler
+Deny: /
+
+User-Agent: kagi-fetcher
+Deny: /
+
+# While I do really like commoncrawls mission, I don't want my site in any AI training data sets. Sorry!
+User-Agent: CCBot
+Deny: /
+
+Sitemap: /sitemap.xml

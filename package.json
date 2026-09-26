@@ -1,4 +1,5 @@
 {
+	"name": "@blorptopia/site",
 	"type": "module",
 	"scripts": {
 		"vite": "cd $INIT_CWD && vite"
