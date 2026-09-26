@@ -6,6 +6,12 @@ Curious about the content? See the [production instance](https://blorptopia.dev)
 python3 -m build live
 ```
 
+## Scaffolding
+```sh
+python3 -m build gen post "Happy eyeballs"
+python3 -m build gen project Gate
+```
+
 ## Deploying
 ```sh
 # This creates files in the "dist" folder for you to deploy to a static file host
