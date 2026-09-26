@@ -291,7 +291,9 @@ class _BuildContext:
 		if exit_code != 0:
 			assert process.stdout is not None, "we captured the stdout"
 			assert process.stderr is not None, "we captured the stderr"
-			print(process.stdout.read())
-			print(process.stderr.read())
+			stdout = await process.stdout.read()
+			stderr = await process.stderr.read()
+			print(stdout.decode())
+			print(stderr.decode())
 			raise RuntimeError(f"vite exited with {exit_code} exit code")
 
