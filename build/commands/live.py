@@ -27,11 +27,14 @@ async def serve_live(
 	# This is done as the clients is in a loop of wait for update -> reload -> wait again, and we don't want to spam reloads
 	update_start_event.set()
 	update_start_event.clear()
-	start_time = time.time()
-	await build_site(root_path, live_reload=True)
-	end_time = time.time()
-	_log.info("built site in %.2f seconds", end_time - start_time)
-	is_ready_event.set()
+	try:
+		start_time = time.time()
+		await build_site(root_path, live_reload=True)
+		end_time = time.time()
+		_log.info("built site in %.2f seconds", end_time - start_time)
+		is_ready_event.set()
+	except:
+		_log.error("failed to build site. Waiting for file changes", exc_info=True)
 
 
 	while True:
@@ -55,11 +58,14 @@ async def serve_live(
 		update_start_event.set()
 		update_start_event.clear()
 		is_ready_event.clear()
-		start_time = time.time()
-		await build_site(root_path, live_reload=True)
-		end_time = time.time()
-		_log.info("built site in %.2f seconds", end_time - start_time)
-		is_ready_event.set()
+		try:
+			start_time = time.time()
+			await build_site(root_path, live_reload=True)
+			end_time = time.time()
+			_log.info("built site in %.2f seconds", end_time - start_time)
+			is_ready_event.set()
+		except:
+			_log.error("failed to build site. Waiting for file changes", exc_info=True)
 
 async def _serve_built_files(
 	is_ready_event: asyncio.Event,
