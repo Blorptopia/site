@@ -24,7 +24,8 @@ class ProjectLinks(typing.TypedDict):
 
 
 class ProjectDevelopedWith(typing.TypedDict):
-	employer: EmployerId
+	employer: EmployerId | None
+	developers: int
 
 class Employer(typing.TypedDict):
 	display_name: str
