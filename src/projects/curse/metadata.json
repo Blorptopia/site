@@ -12,6 +12,7 @@
 	},
 	"links": {
 		"demo": "https://curse.blorptopia.workers.dev",
-		"github": "https://github.com/blorptopia/curse"
+		"github": "https://github.com/blorptopia/curse",
+		"blog_slugs": ["curse-implementation"]
 	}
 }
