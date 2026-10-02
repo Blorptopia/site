@@ -165,6 +165,8 @@ class _BuildContext:
 		Renders a template from the template path to the vite directory
 		
 		Additional context:
+			len:
+				The stdlib :func:`len` function
 			template_name:
 				The name of the template
 			template_path:
@@ -199,6 +201,7 @@ class _BuildContext:
 		
 		context = context or {}
 		context.update({
+			"len": len,
 			"template_name": template_name,
 			"template_path": template_path,
 			"open_relative": lambda sub_path: open(template_path.parent / sub_path),
