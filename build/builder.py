@@ -7,6 +7,7 @@ import jinja2
 from uuid import uuid7
 import json
 
+from jinja2.ext import DebugExtension
 from .models.post import PostMetadata
 from .models.project import ProjectMetadata, ProjectsMetadata
 
@@ -124,7 +125,10 @@ class _BuildContext:
 			# While we don't currently use async in any of our templates, we want to in the future
 			# for things like open_relative to reduce build times
 			# However for now, this is currently unused
-			enable_async=True
+			enable_async=True,
+			extensions=[
+				DebugExtension
+			]
 		)
 	@staticmethod
 	def _create_temporary_folder() -> Path:
