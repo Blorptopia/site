@@ -1,16 +1,84 @@
 {% extends "page.html" %}
+{% import "projects/preview.html" as project_preview with context %}
 {% block head %}
 	{{ super() }}
 	<link rel="stylesheet" href="/index.css">
 	<title>Blorptopia</title>
 {% endblock %}
 
-{% block page_content %}
-	<h1>o/</h1>
-	<h2>Socials</h2>
-	<ul>
-		<li><a href="https://github.com/Blorptopia">@Blorptopia on GitHub</a></li>
-		<li><a href="https://blorptopia.itch.io">Blorptopia on Itch</a></li>
-	</ul>
+{% macro preview_project(slug) %}
+	{% set metadata = per_project_metadata[slug] %}
+	<div class="project">
+		<div class="heading">
+			<h3><a href="/projects/{{ slug }}">{{ metadata.display_name }}</a></h3>
+		</div>
+		<p>{{ metadata.summary }}</p>
+		<div class="actions">
+			{% set links = metadata.links %}
+			{% if "demo" in links %}
+				<a href="{{ links.demo }}">Demo</a>
+			{% elif len(links.get("blog_slugs", {})) != 0 %}
+				{% set blog_slug = links.blog_slugs[0] %}
+				<a href="/posts/{{ blog_slug }}">Technical info</a>
+			{% else %}
+				<a href="/projects/{{ slug }}">Info</a>
+			{% endif %}
+		</div>
+	</div>
+{% endmacro %}
+{% macro skill(tag_name, since) %}
+	{% set metadata = per_project_metadata[slug] %}
+	{% set tag = projects_metadata.tags[tag_name] %}
+	<div class="skill">
+		<div class="heading">
+			<h3><a href="/projects?tag={{ tag_name }}">{{ tag.display_name }}</a></h3>
+			<span class="since">Since {{ since }}</span>
+		</div>
+		<p>{{ caller() }}</p>
+	</div>
+{% endmacro %}
 
+{% block page_content %}
+	<div id="page-heading">
+		<img id="icon" src="./assets/crab.svg" alt="">
+		<h1>Blorptopia</h1>
+		<div class="socials">
+			<a href="https://github.com/Blorptopia">GitHub</a>
+			<a href="https://blorptopia.itch.io">Itch</a>
+		</div>
+	</div>
+	<div id="content-sections">
+		<div id="left-column" class="column">
+			<section id="about-me">
+				<h2>About me</h2>
+				<p>
+					Hi, I'm Blorptopia. I'm a self taught backend developer since ~2017
+				</p>
+			</section>
+			<section id="skills-section">
+				<h2>Featured skills</h2>
+				<div id="skills">
+					{% call skill("python", 2017) %}
+						I started learning Python due to a Python tutorial coming up in my YouTube feed back in ~2017, and I've been hooked since. With Python I've made websites, tools and analytics software.
+					{% endcall %}
+					{% call skill("rust", 2022) %}
+						Back in 2022 there was a wave of Python developers switching over to Rust, and I joined in out of curiosity. Since then <i>most</i> of my backends and tools have been written in Rust
+					{% endcall %}
+					{% call skill("kubernetes", 2022) %}
+						I set up my first Kubernetes cluster in 2022 and set all my services up on it. Since then I've managed multiple kubernetes deployments - some on-prem and some in cloud.
+					{% endcall %}
+				</div>
+			</section>
+		</div>
+		<div id="right-column" class="column">
+			<section id="projects-section">
+				<h2>Featured projects</h2>
+				<div id="projects">
+					{{ preview_project("gate") }}
+					{{ preview_project("tross") }}
+					{{ preview_project("aassiden") }}
+				</div>
+			</section>
+		</div>
+	</div>
 {% endblock %}

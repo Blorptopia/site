@@ -8,6 +8,7 @@ from uuid import uuid7
 import json
 
 from jinja2.ext import DebugExtension
+
 from .models.post import PostMetadata
 from .models.project import ProjectMetadata, ProjectsMetadata
 
@@ -29,7 +30,6 @@ async def build_site(root_path: Path, *, keep_build_root: bool = False, live_rel
 		await context.copy_over_assets()
 
 		# Render "static" pages that have no metadata connection
-		await context.render_template(source_path / "index.html")
 
 		# Render blogs
 		per_post_metadata: dict[str, PostMetadata] = {}
@@ -75,6 +75,15 @@ async def build_site(root_path: Path, *, keep_build_root: bool = False, live_rel
 		# Render the project index
 		await context.render_template(
 			source_path / "projects" / "index.html",
+			context={
+				"per_project_metadata": per_project_metadata,
+				"projects_metadata": projects_metadata
+			}
+		)
+
+		# Render the site index
+		await context.render_template(
+			source_path / "index.html",
 			context={
 				"per_project_metadata": per_project_metadata,
 				"projects_metadata": projects_metadata
