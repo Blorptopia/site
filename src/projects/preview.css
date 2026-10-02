@@ -1,0 +1,49 @@
+.project:not([hidden]) {
+	background: var(--box-color);
+	padding: 1rem;
+	border-radius: 0.5rem;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 1rem;
+}
+.heading {
+	display: flex;
+	justify-content: space-between;
+}
+.project-title {
+	text-decoration: none;
+}
+a {
+	color: var(--link-color);
+}
+.project:hover .project-title {
+	text-decoration: underline;
+}
+.metadata {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	gap: .5rem;
+}
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+}
+.tag {
+	background: light-dark(#ababab, #343434);
+	padding: .5rem;
+	border-radius: .5rem;
+	text-decoration: none;
+	color: light-dark(black, white);
+}
+.links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+}
+.tag:hover {
+	text-decoration: underline;
+}

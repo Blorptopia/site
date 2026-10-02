@@ -1,9 +1,11 @@
 {% extends "page.html" %}
+{% import "projects/preview.html" as project_preview with context %}
 {% block head %}
 	{{ super() }}
 	<title>Projects | Blorptopia</title>
 	<link rel="stylesheet" href="./index.css">
 	<script src="./index.ts" type="module" defer></script>
+	{{ project_preview.imports() }}
 {% endblock %}
 {% block page_content %}
 	<h1>Projects</h1>
@@ -24,40 +26,7 @@
 			{% else %}
 				<h2 class="year-heading">{{ project_creation_year }}</h2>
 			{% endif %}
-			<div class="project" href="/projects/{{ project_slug }}" data-year="{{ project_creation_year }}">
-				<div class="content">
-					<div class="heading">
-						<a class="project-title" href="/projects/{{ project_slug | escape }}"><h2>{{ project_metadata.display_name }}</h2></a>
-						{% set employer = project_metadata.developed_with.employer %}
-						{% if employer == None %}
-							{% if project_metadata.developed_with.developers == 1 %}
-								<span class="developer-status">Solo project</span>
-							{% else %}
-								<span class="developer-status">Personal w/{{ project_metadata.developed_with.developers - 1 }} others</span>
-							{% endif %}
-						{% else %}
-							<span class="developer-status">@ {{ projects_metadata.employers[employer].display_name }}</span>
-						{% endif %}
-					</div>
-					<span class="summary">{{ project_metadata.summary }}</span>
-				</div>
-				<div class="metadata">
-					<div class="links">
-						<a href="/projects/{{ project_slug | escape }}">Details</a>
-						{% if "demo" in project_metadata.get("links", {}) %}
-							<a href="{{ project_metadata.links.demo }}">Demo</a>
-						{% endif %}
-						{% if "github" in project_metadata.get("links", {}) %}
-							<a href="{{ project_metadata.links.github }}">GitHub</a>
-						{% endif %}
-					</div>
-					<div class="tags">
-						{% for tag in project_metadata.tags %}
-							<a class="tag" data-tag-name="{{ tag | escape }}" href="/projects/?tag={{ tag | escape }}">{{ projects_metadata["tags"][tag].display_name | escape }}</a>
-						{% endfor %}
-					</div>
-				</div>
-			</div>
+			{{ project_preview.preview(project_slug) }}
 		{% endfor %}
 	</div>
 {% endblock %}

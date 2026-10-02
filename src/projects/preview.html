@@ -1,0 +1,51 @@
+{#
+	Component for previewing a project
+
+	Usage:
+	{% import "projects/preview.html" as project_preview with context %}
+	{{ project_preview.imports() }}
+	{{ project_preview.preview("gate") }}
+#}
+
+{% macro imports() %}
+	<link rel="stylesheet" href="/projects/preview.css">
+{% endmacro %}
+
+{% macro preview(slug) %}
+	{% set metadata = per_project_metadata[slug] %}
+	{% set project_creation_year = metadata.created_at.split("-")[0] %}
+	<div class="project" href="/projects/{{ slug }}" data-year="{{ project_creation_year }}">
+		<div class="content">
+			<div class="heading">
+				<a class="project-title" href="/projects/{{ project_slug | escape }}"><h2>{{ metadata.display_name }}</h2></a>
+				{% set employer = metadata.developed_with.employer %}
+				{% if employer == None %}
+					{% if metadata.developed_with.developers == 1 %}
+						<span class="developer-status">Solo project</span>
+					{% else %}
+						<span class="developer-status">Personal w/{{ metadata.developed_with.developers - 1 }} others</span>
+					{% endif %}
+				{% else %}
+					<span class="developer-status">@ {{ projects_metadata.employers[employer].display_name }}</span>
+				{% endif %}
+			</div>
+			<span class="summary">{{ metadata.summary }}</span>
+		</div>
+		<div class="metadata">
+			<div class="links">
+				<a href="/projects/{{ slug | escape }}">Details</a>
+				{% if "demo" in metadata.get("links", {}) %}
+					<a href="{{ metadata.links.demo }}">Demo</a>
+				{% endif %}
+				{% if "github" in metadata.get("links", {}) %}
+					<a href="{{ metadata.links.github }}">GitHub</a>
+				{% endif %}
+			</div>
+			<div class="tags">
+				{% for tag in metadata.tags %}
+					<a class="tag" data-tag-name="{{ tag | escape }}" href="/projects/?tag={{ tag | escape }}">{{ projects_metadata["tags"][tag].display_name | escape }}</a>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endmacro %}
