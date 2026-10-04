@@ -23,7 +23,7 @@ h1 {
 	#projects {
 		grid-template-columns: 1fr;
 	}
-	h2 {
+	.year-heading {
 		grid-column: span 1;
 	}
 }
