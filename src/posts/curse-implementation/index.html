@@ -1,0 +1,141 @@
+{% extends "posts/base.html" %}
+{% macro visualization_error() %}
+	<h3>Visualization</h3>
+	<p>This visualization has not loaded yet</p>
+	<noscript>
+		<p>Hint: you have JavaScript disabled / your browser doesn't support JS</p>
+	</noscript>
+{% endmacro %}
+
+{% block head -%}
+	{{ super() }}
+	<script src="./visualizations/flask.ts" type="module" async></script>
+	<script src="./visualizations/wave.ts" type="module" async></script>
+	<link rel="stylesheet" href="./index.css">
+{% endblock %}
+{% block post_content -%}
+	<h1>{{ post_metadata.title }}</h1>
+	<p>
+		Curse is a silly little potion brewing game I made together with a few friends, where you buy ingredients with various twists like "needs to be heated between 50&deg;c and 60&deg;c" or "can only be rotated clockwise".
+	</p>
+	<section id="curse-overview">
+		<h2>Overview</h2>
+		<p>
+			Curse was made without a game engine - it instead uses Lit (the web framework) to manage state and absolutely positioned <code>img</code> tags to render the content.
+		</p>
+		<img src="images/image-layout.png" alt="The game window, but every shadow, character and image having a cyan outline">
+		<p>This also applies to the entities in the scene (aka any physics object)</p>
+		<img src="images/image-layout-entities.png" alt="">
+		<p>
+			While this worked, this was not the smartest idea considering we had limited time due the rules of the gamejam. This ended with the gameplay being very shallow and unbalanced.
+		</p>
+	</section>
+	<section id="curse-flask">
+		<h2>The flask</h2>
+		<p>
+			At the center of curse is <em>the flask</em>. This is where you do all the brewing, and where the ingredients twist's are active.
+		</p>
+		<bb-curse-flask-visualization
+			class="visualization"
+			wavecycleinterval="-1"
+			parts="[&quot;liquid&quot;]"
+		>
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#0ff" heatedfraction="1" totalrotation="500">
+		</bb-curse-flask-visualization>
+		<p>
+			But lets take a step back first to see #text(style: "italic")[how] this is rendered. The flask consists of 1 "layer" per instance of an ingredient inside the flask.
+			Each layer is built up of "rasterized" points on a sine wave, with a line between each point. If the "wave resolution" is too low you can see the individual segments.
+		</p>
+		<p>
+			In the production instance of Curse, this is 20 points.
+		</p>
+		<bb-curse-wave-visualization
+			controls="[&quot;offset&quot;, &quot;resolution&quot;]"
+		>
+			{{ visualization_error() }}
+		</bb-curse-wave-visualization>
+		<p>
+			The wave is animated by changing the offset to increase with <math><mn>2</mn><mi>&pi;</mi></math> every 2 seconds, but also by adding a small variation to the height of the point to emulate the liquid boiling.
+		</p>
+		<p>
+			Now that we have the liquids, we mask it out to draw just the liquid <em>inside</em> the flask, and render a flask on top of it. In the production instance of Curse, the mask is bigger than the flask itself. We solve this in production by rendering yet another flask image, just a tad bit bigger to hide the issue.
+		</p>
+		<p>This is what we have so far:</p>
+		<bb-curse-flask-visualization
+			class="visualization"
+			parts="[&quot;liquid&quot;, &quot;mask&quot;, &quot;flask&quot;]"
+		>
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#0ff" heatedfraction="1" totalrotation="500">
+		</bb-curse-flask-visualization>
+		<p>
+			and this might look a bit different than the flask you see in game. This is due to the production instance having a second slightly darker and reversed "backing" wave behind the topmost layer to emulate depth.
+		</p>
+		<bb-curse-flask-visualization
+			class="visualization"
+			parts="[&quot;liquid&quot;, &quot;mask&quot;, &quot;flask&quot;, &quot;backwave&quot;]"
+		>
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#0ff" heatedfraction="1" totalrotation="500">
+		</bb-curse-flask-visualization>
+		<p>
+			Now, the instances aren't usually just the same color, they change based on the state of the instance.
+			Each instance layer starts out with the ingredient's base color, and is mixed with transparency for how raw the ingredient is, is desaturated for how unmixed it is and is mixed with brown for how "wrongly" cooked it is (burnt / too low temp)
+		</p>
+		<p>
+			The code and gameplay also mentions that it will turn purple if poisoned by you not following the instructions (e.g. spin direction), however no effect that emitted poison was implemented in the production instance of the game, however the placebo itself was powerful enough for the players to enjoy the feature.
+		</p>
+	</section>
+	<details id="zoo">
+		<summary>Zoo</summary>
+		<h2>The flask</h2>
+		<h3>Generic</h3>
+		<bb-curse-flask-visualization class="visualization" controls="[&quot;layers&quot;, &quot;color&quot;, &quot;heat&quot;, &quot;temperature&quot;]">
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#f00">
+			<bb-curse-flask-ingredient-instance basecolor="#0f0">
+			<bb-curse-flask-ingredient-instance basecolor="#00f">
+		</bb-curse-flask-visualization>
+		<h3>Fully rotated</h3>
+		<bb-curse-flask-visualization class="visualization" controls="[&quot;layers&quot;, &quot;color&quot;, &quot;heat&quot;, &quot;temperature&quot;]">
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#f00" totalrotation="800">
+			<bb-curse-flask-ingredient-instance basecolor="#0f0" totalrotation="800">
+			<bb-curse-flask-ingredient-instance basecolor="#00f" totalrotation="800">
+		</bb-curse-flask-visualization>
+		<h3>Max temp</h3>
+		<bb-curse-flask-visualization class="visualization" controls="[&quot;layers&quot;, &quot;color&quot;, &quot;heat&quot;, &quot;temperature&quot;]">
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#f00" totalrotation="800" temperaturemax="30">
+			<bb-curse-flask-ingredient-instance basecolor="#0f0" totalrotation="800" temperaturemax="30">
+			<bb-curse-flask-ingredient-instance basecolor="#00f" totalrotation="800" temperaturemax="30">
+		</bb-curse-flask-visualization>
+		<h3>Min temp</h3>
+		<bb-curse-flask-visualization class="visualization" controls="[&quot;layers&quot;, &quot;color&quot;, &quot;heat&quot;, &quot;temperature&quot;]">
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#f00" totalrotation="800" temperaturemin="30">
+			<bb-curse-flask-ingredient-instance basecolor="#0f0" totalrotation="800" temperaturemin="30">
+			<bb-curse-flask-ingredient-instance basecolor="#00f" totalrotation="800" temperaturemin="30">
+		</bb-curse-flask-visualization>
+		<h3>Liquid only</h3>
+		<bb-curse-flask-visualization class="visualization" controls="[&quot;layers&quot;, &quot;color&quot;, &quot;heat&quot;, &quot;temperature&quot;]" parts="[&quot;liquid&quot;]">
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#f00" totalrotation="800">
+			<bb-curse-flask-ingredient-instance basecolor="#0f0" totalrotation="800">
+			<bb-curse-flask-ingredient-instance basecolor="#00f" totalrotation="800">
+		</bb-curse-flask-visualization>
+		<h3>No flask</h3>
+		<bb-curse-flask-visualization class="visualization" controls="[&quot;layers&quot;, &quot;color&quot;, &quot;heat&quot;, &quot;temperature&quot;]" parts="[&quot;liquid&quot;, &quot;mask&quot;]">
+			{{ visualization_error() }}
+			<bb-curse-flask-ingredient-instance basecolor="#f00" totalrotation="800">
+			<bb-curse-flask-ingredient-instance basecolor="#0f0" totalrotation="800">
+			<bb-curse-flask-ingredient-instance basecolor="#00f" totalrotation="800">
+		</bb-curse-flask-visualization>
+		<h2>Wave</h2>
+		<h3>All controls</h3>
+		<bb-curse-wave-visualization>
+			{{ visualization_error() }}
+		</bb-curse-wave-visualization>
+	</details>
+{% endblock %}
