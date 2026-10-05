@@ -1,5 +1,5 @@
 {
-	"id": "urn:uuid:688e55dc-672f-43de-8147-671a247877bf",
+	"id": "688e55dc-672f-43de-8147-671a247877bf",
 	"title": "Creating a CSV library from scratch",
 	"summary": "The edgecases of parsing and multithreading serialization and deserialization of CSVs",
 	"published_at": "2026-05-15"
