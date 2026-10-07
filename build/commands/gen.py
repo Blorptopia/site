@@ -19,6 +19,12 @@ _DEFAULT_POST_CONTENT = """
 	<h1>{{ post_metadata.title }}</h1>
 {% endblock %}
 """.strip()
+_DEFAULT_PROJECT_CONTENT = """
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+{% endblock %}
+""".strip()
 
 async def gen_post(root_path: Path, title: str, *, slug: str | None = None) -> None:
 	slug = slug or title.lower().replace(" ", "-")
@@ -67,7 +73,7 @@ async def gen_project(root_path: Path, title: str, *, slug: str | None = None) -
 		json.dump(metadata, f, indent="\t")
 		_log.debug("wrote metadata file")
 	with (project_path / "index.html").open("w+") as f:
-		f.write(_DEFAULT_POST_CONTENT)
+		f.write(_DEFAULT_PROJECT_CONTENT)
 		_log.debug("wrote sample content")
 	_log.info("wrote project scaffold to %s", project_path)
 
