@@ -17,7 +17,7 @@
 	<div class="project" href="/projects/{{ slug }}" data-year="{{ project_creation_year }}">
 		<div class="content">
 			<div class="heading">
-				<a class="project-title" href="/projects/{{ project_slug | escape }}"><h2>{{ metadata.display_name }}</h2></a>
+				<a class="project-title" href="/projects/{{ slug | escape }}"><h2>{{ metadata.display_name }}</h2></a>
 				{% set employer = metadata.developed_with.employer %}
 				{% if employer == None %}
 					{% if metadata.developed_with.developers == 1 %}
