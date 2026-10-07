@@ -9,6 +9,7 @@ class PostMetadata(typing.TypedDict):
 	"""
 	id: str
 	title: str
+	summary: str
 	published_at: str
 	updated_at: typing.NotRequired[str]
 

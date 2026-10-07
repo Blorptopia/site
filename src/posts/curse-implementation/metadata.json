@@ -1,6 +1,7 @@
 {
 	"id": "01a0e7bc-6a2a-745f-8172-290e5b8608f6",
 	"title": "How Curse was made",
+	"summary": "The weird ways we implemented rendering for our potion brewing game",
 	"published_at": "2026-10-05",
 	"updated_at": "2026-10-06"
 }
