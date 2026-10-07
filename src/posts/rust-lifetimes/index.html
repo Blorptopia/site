@@ -1,0 +1,57 @@
+{% extends "posts/base.html" %}
+
+{% block head -%}
+	{{ super() }}
+	<script src="/syntax-highlighting.ts" type="module" async></script>
+{% endblock %}
+{% block post_content -%}
+	<h1>{{ post_metadata.title }}</h1>
+	<h2>Preamble</h2>
+	<p>
+		This blogpost is meant for you if you have <em>tried</em> to learn lifetimes using the <a href="https://doc.rust-lang.org/stable/book/">rust book</a> or <a href="https://rustlings.rust-lang.org/">rustlings</a> and gotten confused, or if you want to sanity check that you really understood lifetimes.
+	</p>
+	<h2>What a lifetime is</h2>
+	<p>
+		Lifetimes are compile time variables similarly to generics. They describe to the rust compiler how long some data must exist <em>relative</em> to some other data. Lifetimes consist of two parts - the definition and the usage, similar to how you define generics and then use them later. While you can name generics whatever you want, the convention is to use a single letter lifetime name like <code>'a</code>.
+	</p>
+	<h2>What a lifetime describes</h2>
+	<bb-syntax-highlighting language="rust" contents="{{ open_relative("examples/usage.rs").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		In this example we are defining a <code>'a</code> lifetime and using it both for the parameter and the return value. This states that the return value exists for <em>at least</em> as long as the parameter. 
+	</p>
+	<bb-syntax-highlighting language="rust" contents="{{ open_relative("examples/usage_after_drop.rs").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		If we drop <code>text</code>, <code>reference</code> stops being usable and cannot be used anymore, making the example above fail to compile.
+	</p>
+	<h2><code>'static</code> - the special case</h2>
+	<p>
+		While usually the name of a lifetime is just that - a name, <code>'static</code> breaks that rule by introducing special behaviour whenever it's name is used as an lifetime.
+		The static lifetime marks that the data will never go out of scope.
+	</p>
+	<h3>Case 1 - <code>&amp;'static str</code></h3>
+	<p>
+		You can use <code>&amp;'static str</code> to point to a string slice directly in the binary itself.
+	</p>
+	<bb-syntax-highlighting language="rust" contents="{{ open_relative("examples/static_str.rs").read() | escape }}"></bb-syntax-highlighting>
+	<h3>Case 2 - Generics</h3>
+	<bb-syntax-highlighting language="rust" contents="{{ open_relative("examples/generics/single_thread.rs").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		Imagine if we have a function that takes in <em>any</em> type that can be converted to a <code>&amp;str</code> (using <code><a href="https://doc.rust-lang.org/stable/std/convert/trait.AsRef.html">AsRef&lt;str&gt;</a></code>). This would then support taking in both a <code>&amp;'static str</code>, a <code>&amp;String</code> and an owned <code>String</code>.
+	</p>
+	<p>
+		This works great for a function that takes in a reference and stops using it when the function returns. However if you want to store the reference somewhere <em>after</em> the function has returned, this stops working.
+	</p>
+	<bb-syntax-highlighting language="rust" contents="{{ open_relative("examples/generics/multi_thread_no_static.rs").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		This example doesn't work however, as you are sending text to another thread. This cannot guarantee that text will be dropped before the program exits.
+	</p>
+	<p>
+		If you however add a <code>'static</code> lifetime bound to <code>text</code>. This would work with the exception of calling the function with a reference to a locally owned string.
+	</p>
+	<bb-syntax-highlighting language="rust" contents="{{ open_relative("examples/generics/multi_thread.rs").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		Here you also see the distinction between <code>'static</code> and "lasts until the program exits", as you can pass in an owned string to a function requiring the <code>'static</code> lifetime bound on a parameter.
+	</p>
+	<h2>Acknowledgements</h2>
+	<p>Thanks <a href="https://github.com/Simen732">Simen732</a> for proof-reading</p>
+{% endblock %}
