@@ -1,9 +1,15 @@
 {% extends "page.html" %}
 {% import "projects/preview.html" as project_preview with context %}
+{% set bio = "Hi, I'm Blorptopia. I'm a self taught backend developer since ~2017" %}
 {% block head %}
 	{{ super() }}
 	<link rel="stylesheet" href="/index.css">
 	<title>Blorptopia</title>
+	<meta property="og:type" content="profile" />
+	<meta property="og:profile:username" content="blorptopia" />
+	<meta property="og:title" content="Blorptopia" />
+	<meta property="og:description" content="{{ bio }}">
+	<meta property="description" content="{{ bio }}">
 {% endblock %}
 
 {% macro preview_project(slug) %}
@@ -51,9 +57,7 @@
 		<div id="left-column" class="column">
 			<section id="about-me">
 				<h2>About me</h2>
-				<p>
-					Hi, I'm Blorptopia. I'm a self taught backend developer since ~2017
-				</p>
+				<p>{{ bio }}</p>
 			</section>
 			<section id="skills-section">
 				<h2>Featured skills</h2>
