@@ -10,6 +10,7 @@ _log = logging.getLogger(__name__)
 
 async def serve_live(
 	root_path: Path,
+	public_origin: str,
 	listen_host: str,
 	listen_port: int
 ) -> None:
@@ -29,7 +30,7 @@ async def serve_live(
 	update_start_event.clear()
 	try:
 		start_time = time.time()
-		await build_site(root_path, live_reload=True)
+		await build_site(root_path, public_origin, live_reload=True)
 		end_time = time.time()
 		_log.info("built site in %.2f seconds", end_time - start_time)
 		is_ready_event.set()
@@ -60,7 +61,7 @@ async def serve_live(
 		is_ready_event.clear()
 		try:
 			start_time = time.time()
-			await build_site(root_path, live_reload=True)
+			await build_site(root_path, public_origin, live_reload=True)
 			end_time = time.time()
 			_log.info("built site in %.2f seconds", end_time - start_time)
 			is_ready_event.set()

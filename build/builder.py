@@ -14,7 +14,7 @@ from .models.project import ProjectMetadata, ProjectsMetadata
 
 _log = logging.getLogger(__name__)
 
-async def build_site(root_path: Path, *, keep_build_root: bool = False, live_reload: bool = False) -> None:
+async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bool = False, live_reload: bool = False) -> None:
 	dist_path = root_path / "dist"
 	source_path = root_path / "src"
 	
@@ -24,7 +24,7 @@ async def build_site(root_path: Path, *, keep_build_root: bool = False, live_rel
 	build_root.mkdir()
 	
 	try:
-		context = _BuildContext(source_path, build_root, live_reload=live_reload)
+		context = _BuildContext(source_path, build_root, public_origin, live_reload=live_reload)
 		
 		# Copy over assets needed to build html pages
 		await context.copy_over_assets()
@@ -116,6 +116,8 @@ class _BuildContext:
 
 			This needs to be inside the scope of the package.json
 			It is the callers responsibility to clean this up after building
+		public_origin:
+			The origin the site will be served on
 		live_reload:
 			If live reload is enabled
 	"""
@@ -123,11 +125,13 @@ class _BuildContext:
 			self,
 			source_path: Path,
 			build_root: Path,
+			public_origin: str,
 			*,
 			live_reload: bool = False
 		) -> None:
 		self._source_path = source_path
 		self._vite_root: Path = build_root / "vite"
+		self._public_origin: str = public_origin
 		self._live_reload = live_reload
 		self._jinja_environment = jinja2.Environment(
 			loader=jinja2.FileSystemLoader(source_path),
@@ -184,6 +188,8 @@ class _BuildContext:
 				A function that allows you to open a file relative to the template's parent directory
 			ssg_live_reload:
 				If live reload is enabled
+			public_origin:
+				The origin the site will be served on
 
 		Arguments:
 			template_path:
@@ -214,7 +220,8 @@ class _BuildContext:
 			"template_name": template_name,
 			"template_path": template_path,
 			"open_relative": lambda sub_path: open(template_path.parent / sub_path),
-			"ssg_live_reload": self._live_reload
+			"ssg_live_reload": self._live_reload,
+			"public_origin": self._public_origin
 		})
 
 		output = await template.render_async(**context)

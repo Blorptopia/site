@@ -64,4 +64,4 @@ Disallow: /
 User-Agent: CCBot
 Disallow: /
 
-Sitemap: /sitemap.xml
+Sitemap: {{ public_origin }}/sitemap.xml

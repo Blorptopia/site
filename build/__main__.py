@@ -30,6 +30,7 @@ async def main() -> None:
 		help="Which host to listen on. 0.0.0.0 can be used to listen on all interfaces, while 127.0.0.1 can be used to only listen on loopback"
 	)
 	live_parser.add_argument("--port", default="8000", help="The port to serve requests on")
+	live_parser.add_argument("--public-origin", help="The origin the site will be served on. If not set, defaults to http://{--host}:{--port}", default=None)
 
 	dist_parser = subcommand_parser.add_parser("dist")
 	dist_parser.add_argument(
@@ -37,6 +38,7 @@ async def main() -> None:
 		action="store_true",
 		help="If enabled, the directory for temporary build artifacts is kept after building. This is meant for debugging"
 	)
+	dist_parser.add_argument("--public-origin", help="The origin the site will be served on", default="https://blorptopia.dev")
 
 	gen_parser = subcommand_parser.add_parser("gen")
 	gen_subcommand_parser = gen_parser.add_subparsers(dest="gen_subcommand")
@@ -53,11 +55,13 @@ async def main() -> None:
 	
 	if command == "dist":
 		start_time = time.time()
-		await build_site(parsed.root_path, keep_build_root=parsed.keep_build_root)
+		public_origin = parsed.public_origin or "https://blorptopia.dev"
+		await build_site(parsed.root_path, public_origin, keep_build_root=parsed.keep_build_root)
 		end_time = time.time()
 		_log.info("build completed in %.2f seconds. Output can be found in dist folder", end_time - start_time)
 	elif command == "live":
-		await serve_live(parsed.root_path, parsed.host, parsed.port)
+		public_origin = parsed.public_origin or f"http://{parsed.host}:{parsed.port}"
+		await serve_live(parsed.root_path, public_origin, parsed.host, parsed.port)
 	elif command == "gen":
 		gen_subcommand: typing.Literal["post", "project"] = parsed.gen_subcommand
 		if gen_subcommand == "post":
