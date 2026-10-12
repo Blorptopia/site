@@ -270,10 +270,10 @@ class _BuildContext:
 		if relative_to_vite_root.name == "index.html":
 			url = str(relative_to_vite_root.parent)
 			if url == ".":
-				return "/"
-			return "/" + url
+				return self._public_origin
+			return self._public_origin + "/" + url
 		else:
-			return "/" + str(relative_to_vite_root)
+			return self._public_origin + "/" + str(relative_to_vite_root)
 
 	async def build_dist_bundle(self, dist_path: Path) -> None:
 		"""
