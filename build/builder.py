@@ -362,7 +362,7 @@ class _BuildContext:
 		Creates an LD-JSON graph for a blog post
 		"""
 		article: dict[str, typing.Any] = {
-			"@type": "Article",
+			"@type": "BlogPosting",
 			"@id": f"{self._public_origin}/posts/{post_slug}#post",
 			"headline": post["title"],
 			"description": post["summary"],
