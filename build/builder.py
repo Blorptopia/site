@@ -370,6 +370,7 @@ class _BuildContext:
 			"datePublished": post["published_at"],
 			"author": {
 				"@type": "Person",
+				"name": "Blorptopia",
 				"url": f"{self._public_origin}/#person"
 			}
 		}
