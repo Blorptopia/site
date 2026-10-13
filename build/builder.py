@@ -86,7 +86,8 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 			source_path / "index.html",
 			context={
 				"per_project_metadata": per_project_metadata,
-				"projects_metadata": projects_metadata
+				"projects_metadata": projects_metadata,
+				"ld_json": json.dumps(context.create_index_graph())
 			}
 		)
 
@@ -254,7 +255,7 @@ class _BuildContext:
 		)
 
 	async def render_post(self, slug: str, metadata: PostMetadata) -> None:
-		await self.render_template(self._source_path / "posts" / slug / "index.html", context={"post_metadata": metadata})
+		await self.render_template(self._source_path / "posts" / slug / "index.html", context={"post_metadata": metadata, "ld_json": json.dumps(self.create_blog_post_graph(slug, metadata))})
 	async def render_project(self, slug: str, metadata: ProjectMetadata, projects_metadata: ProjectsMetadata, per_post_metadata: dict[str, PostMetadata]) -> None:
 		await self.render_template(
 			self._source_path / "projects" / slug / "index.html",
@@ -319,4 +320,67 @@ class _BuildContext:
 			print(stdout.decode())
 			print(stderr.decode())
 			raise RuntimeError(f"vite exited with {exit_code} exit code")
+	
+	def create_index_graph(self) -> typing.Any:
+		"""
+		Creates an LD-JSON graph for the index page
+		"""
+		profile_page = {
+			"@type": "ProfilePage",
+			"@id": f"{self._public_origin}/#profile-page",
+			"name": "Blorptopia",
+			"mainEntity": {
+				"@type": "Person",
+				"name": "Blorptopia",
+				"url": f"{self._public_origin}/#person"
+			},
+			"about": {
+				"@type": "Person",
+				"name": "Blorptopia",
+				"url": f"{self._public_origin}/#person"
+			}
+		}
+		person = {
+			"@type": "Person",
+			"@id": f"{self._public_origin}/#person",
+			"name": "Blorptopia",
+			"sameAs": [
+				"https://blorptopia.itch.io",
+				"https://itch.io/profile/blorptopia",
+				"https://github.com/Blorptopia"
+			]
+		}
+		return {
+			"@context": "https://schema.org",
+			"@graph": [
+				profile_page,
+				person
+			]
+		}
+	def create_blog_post_graph(self, post_slug: str, post: PostMetadata) -> typing.Any:
+		"""
+		Creates an LD-JSON graph for a blog post
+		"""
+		article: dict[str, typing.Any] = {
+			"@type": "Article",
+			"@id": f"{self._public_origin}/posts/{post_slug}#post",
+			"headline": post["title"],
+			"description": post["summary"],
+			"abstract": post["summary"],
+			"datePublished": post["published_at"],
+			"author": {
+				"@type": "Person",
+				"url": f"{self._public_origin}/#person"
+			}
+		}
+		if "updated_at" in post:
+			article["dateModified"] = post["updated_at"]
+		return {
+			"@context": "https://schema.org",
+			"@graph": [
+				article
+			]
+		}
+
+
 
