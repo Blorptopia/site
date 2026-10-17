@@ -272,7 +272,7 @@ class _BuildContext:
 			url = str(relative_to_vite_root.parent)
 			if url == ".":
 				return self._public_origin
-			return self._public_origin + "/" + url
+			return self._public_origin + "/" + url + "/"
 		else:
 			return self._public_origin + "/" + str(relative_to_vite_root)
 
