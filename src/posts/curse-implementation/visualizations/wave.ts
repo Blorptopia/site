@@ -131,4 +131,9 @@ export class WaveVisualizationElement extends LitElement {
 			</div>
 		`;
 	}
+	public static styles?: CSSResultGroup = css`
+		canvas {
+			background: white;
+		}
+	`;
 }
