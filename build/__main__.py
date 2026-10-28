@@ -31,6 +31,7 @@ async def main() -> None:
 	)
 	live_parser.add_argument("--port", default="8000", help="The port to serve requests on")
 	live_parser.add_argument("--public-origin", help="The origin the site will be served on. If not set, defaults to http://{--host}:{--port}", default=None)
+	live_parser.add_argument("--vite-output", help="Show vite output in the terminal as received. If not enabled, output will be printed if vite fails to run", action="store_true")
 
 	dist_parser = subcommand_parser.add_parser("dist")
 	dist_parser.add_argument(
@@ -39,6 +40,7 @@ async def main() -> None:
 		help="If enabled, the directory for temporary build artifacts is kept after building. This is meant for debugging"
 	)
 	dist_parser.add_argument("--public-origin", help="The origin the site will be served on", default="https://blorptopia.dev")
+	dist_parser.add_argument("--vite-output", help="Show vite output in the terminal as received. If not enabled, output will be printed if vite fails to run", action="store_true")
 
 	gen_parser = subcommand_parser.add_parser("gen")
 	gen_subcommand_parser = gen_parser.add_subparsers(dest="gen_subcommand")
@@ -56,12 +58,12 @@ async def main() -> None:
 	if command == "dist":
 		start_time = time.time()
 		public_origin = parsed.public_origin or "https://blorptopia.dev"
-		await build_site(parsed.root_path, public_origin, keep_build_root=parsed.keep_build_root)
+		await build_site(parsed.root_path, public_origin, keep_build_root=parsed.keep_build_root, vite_output=parsed.vite_output)
 		end_time = time.time()
 		_log.info("build completed in %.2f seconds. Output can be found in dist folder", end_time - start_time)
 	elif command == "live":
 		public_origin = parsed.public_origin or f"http://{parsed.host}:{parsed.port}"
-		await serve_live(parsed.root_path, public_origin, parsed.host, parsed.port)
+		await serve_live(parsed.root_path, public_origin, parsed.host, parsed.port, vite_output=parsed.vite_output)
 	elif command == "gen":
 		gen_subcommand: typing.Literal["post", "project"] = parsed.gen_subcommand
 		if gen_subcommand == "post":

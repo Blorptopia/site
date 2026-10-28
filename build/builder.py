@@ -14,7 +14,7 @@ from .models.project import ProjectMetadata, ProjectsMetadata
 
 _log = logging.getLogger(__name__)
 
-async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bool = False, live_reload: bool = False) -> None:
+async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bool = False, live_reload: bool = False, vite_output: bool = False) -> None:
 	dist_path = root_path / "dist"
 	source_path = root_path / "src"
 	
@@ -24,7 +24,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 	build_root.mkdir()
 	
 	try:
-		context = _BuildContext(source_path, build_root, public_origin, live_reload=live_reload)
+		context = _BuildContext(source_path, build_root, public_origin, live_reload=live_reload, vite_output=vite_output)
 		
 		# Copy over assets needed to build html pages
 		await context.copy_over_assets()
@@ -121,6 +121,8 @@ class _BuildContext:
 			The origin the site will be served on
 		live_reload:
 			If live reload is enabled
+		vite_output:
+			If vite output should be printed out as received
 	"""
 	def __init__(
 			self,
@@ -128,12 +130,14 @@ class _BuildContext:
 			build_root: Path,
 			public_origin: str,
 			*,
-			live_reload: bool = False
+			live_reload: bool = False,
+			vite_output: bool = False
 		) -> None:
 		self._source_path = source_path
 		self._vite_root: Path = build_root / "vite"
 		self._public_origin: str = public_origin
 		self._live_reload = live_reload
+		self._vite_output = vite_output
 		self._jinja_environment = jinja2.Environment(
 			loader=jinja2.FileSystemLoader(source_path),
 			# While we don't currently use async in any of our templates, we want to in the future
@@ -301,24 +305,35 @@ class _BuildContext:
 			}
 			f.write(f"export default {json.dumps(vite_config)}")
 		_log.debug("spawning vite with VITE_ROOT: %s", str(self._vite_root.absolute()))
-		process = await asyncio.create_subprocess_exec(
-			"npm",
-			"run",
-			"--",
-			"vite",
-			"build", 
-			cwd=self._vite_root,
-			stdout=asyncio.subprocess.PIPE,
-			stderr=asyncio.subprocess.PIPE,
-		)
+		if self._vite_output:
+			process = await asyncio.create_subprocess_exec(
+				"npm",
+				"run",
+				"--",
+				"vite",
+				"build", 
+				cwd=self._vite_root,
+			)
+		else:
+			process = await asyncio.create_subprocess_exec(
+				"npm",
+				"run",
+				"--",
+				"vite",
+				"build", 
+				cwd=self._vite_root,
+				stdout=asyncio.subprocess.PIPE,
+				stderr=asyncio.subprocess.PIPE,
+			)
 		exit_code = await process.wait()
 		if exit_code != 0:
-			assert process.stdout is not None, "we captured the stdout"
-			assert process.stderr is not None, "we captured the stderr"
-			stdout = await process.stdout.read()
-			stderr = await process.stderr.read()
-			print(stdout.decode())
-			print(stderr.decode())
+			if not self._vite_output:
+				assert process.stdout is not None, "we captured the stdout"
+				assert process.stderr is not None, "we captured the stderr"
+				stdout = await process.stdout.read()
+				stderr = await process.stderr.read()
+				print(stdout.decode())
+				print(stderr.decode())
 			raise RuntimeError(f"vite exited with {exit_code} exit code")
 	
 	def create_index_graph(self) -> typing.Any:
