@@ -1,5 +1,5 @@
 from pathlib import Path
-from asyncinotify import Mask, RecursiveInotify
+import watchfiles
 import time
 import logging
 import asyncio
@@ -23,8 +23,7 @@ async def serve_live(
 	update_start_event = asyncio.Event()
 	asyncio.create_task(_serve_built_files(is_ready_event, update_start_event, listen_host, listen_port, dist_path))
 
-	source_watcher = RecursiveInotify()
-	source_watcher.add_recursive_watch(source_path, Mask.CLOSE_WRITE | Mask.CREATE | Mask.MOVE)
+	watch_filter = lambda change, path: change in [watchfiles.Change.added, watchfiles.Change.deleted, watchfiles.Change.modified]
 
 	# Release the *current* waiters but not any future ones
 	# This is done as the clients is in a loop of wait for update -> reload -> wait again, and we don't want to spam reloads
@@ -39,25 +38,8 @@ async def serve_live(
 	except:
 		_log.error("failed to build site. Waiting for file changes", exc_info=True)
 
-
-	while True:
-		paths_changed: set[Path] = set()
-		while True:
-			try:
-				if len(paths_changed) == 0:
-					event = await source_watcher.get()
-				else:
-					event = await asyncio.wait_for(source_watcher.get(), timeout=.1)
-			except asyncio.TimeoutError:
-				break
-			_log.debug("event: %s", event)
-			if event.path is None:
-				continue
-			_log.debug("change event: %s", event.path)
-			paths_changed.add(event.path)
-		_log.info("changes to %s detected, re-building", ", ".join([str(path.relative_to(root_path)) for path in paths_changed]))
-		paths_changed.clear()
-
+	async for change in watchfiles.awatch(source_path, watch_filter=watch_filter):
+		_log.info("files changed, rebuilding!")
 		update_start_event.set()
 		update_start_event.clear()
 		is_ready_event.clear()

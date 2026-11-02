@@ -2,7 +2,8 @@
 	"name": "@blorptopia/site",
 	"type": "module",
 	"scripts": {
-		"vite": "cd $INIT_CWD && vite"
+		"vite-linux": "cd $INIT_CWD && vite",
+		"vite-windows": "cd %INIT_CWD% && vite"
 	},
 	"devDependencies": {
 		"typescript": "^7.0.2",

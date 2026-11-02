@@ -6,6 +6,7 @@ import typing
 import jinja2
 from uuid import uuid7
 import json
+import sys
 
 from jinja2.ext import DebugExtension
 
@@ -215,7 +216,8 @@ class _BuildContext:
 		"""
 		template_path_relative_to_source = template_path.relative_to(self._source_path)
 		_log.debug("rendering template %s", template_path_relative_to_source)
-		template_name = str(template_path_relative_to_source)
+		# We replace window's backslashes with forward slashes as jinja2 only supports forward slashes
+		template_name = str(template_path_relative_to_source).replace("\\", "/")
 
 		template = self._jinja_environment.get_template(template_name)
 		
@@ -236,7 +238,8 @@ class _BuildContext:
 		else:
 			output_path = self._vite_root / output_path
 		output_path.parent.mkdir(parents=True, exist_ok=True)
-		with output_path.open("w+") as f:
+		# Encoding is specified explicitly as windows uses cp1252 by default which breaks both vite and the build output 
+		with output_path.open("w+", encoding="utf-8") as f:
 			f.write(output)
 		_log.debug("rendered template %s", template_path_relative_to_source)
 
@@ -305,22 +308,32 @@ class _BuildContext:
 			}
 			f.write(f"export default {json.dumps(vite_config)}")
 		_log.debug("spawning vite with VITE_ROOT: %s", str(self._vite_root.absolute()))
-		if self._vite_output:
-			process = await asyncio.create_subprocess_exec(
+
+		if sys.platform == "win32":
+			args = [
+				"npm.cmd",
+				"run",
+				"--",
+				"vite-windows",
+				"build", 
+			]
+		else:
+			args = [
 				"npm",
 				"run",
 				"--",
-				"vite",
+				"vite-linux",
 				"build", 
+			]
+
+		if self._vite_output:
+			process = await asyncio.create_subprocess_exec(
+				*args,
 				cwd=self._vite_root,
 			)
 		else:
 			process = await asyncio.create_subprocess_exec(
-				"npm",
-				"run",
-				"--",
-				"vite",
-				"build", 
+				*args,
 				cwd=self._vite_root,
 				stdout=asyncio.subprocess.PIPE,
 				stderr=asyncio.subprocess.PIPE,
