@@ -149,18 +149,6 @@ class _BuildContext:
 				DebugExtension
 			]
 		)
-	@staticmethod
-	def _create_temporary_folder() -> Path:
-		"""
-		Creates a temporary branded folder
-
-		Cleanup is the job of the caller
-		"""
-		# While we don't *need* to use a UUIDv7 and could do fine with a UUIDv4, there is also no negative to using them
-		path_id = uuid7()
-		path = Path(f"/tmp/blorptopia-site-{path_id}")
-		path.mkdir()
-		return path
 
 	async def copy_over_assets(self) -> None:
 		"""
