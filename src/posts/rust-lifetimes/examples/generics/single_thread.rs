@@ -3,14 +3,14 @@ fn print_text<TextT: AsRef<str>>(text: TextT) {
 	println!("{as_str}");
 }
 fn main() {
-	// This allows passing both a &'static str
+	// This allows passing a &'static str
 	print_text("hi");
 
 	let owned = "hello".to_string();
 
-	// A reference to a string
+	// A reference to a String
 	print_text(&owned);
 
-	// and an owned string itself
-	print_text(&owned);
+	// and an owned String itself
+	print_text(owned);
 }

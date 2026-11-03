@@ -1,5 +1,6 @@
 {
 	"id": "01a11591-8f8d-7149-b296-95523dd3ae43",
-	"title": "Rust's lifetimes from another perspective",
-	"published_at": "2026-10-07"
+	"title": "Rust lifetimes from another perspective",
+	"summary": "For when you are struggling to understand Rust lifetimes, and you have already tried the Rust Book and Rustlings",
+	"published_at": "2026-11-03"
 }

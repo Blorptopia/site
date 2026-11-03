@@ -1,1 +1,1 @@
-const greeting: &'static str = "hi";
+const GREETING: &'static str = "hi";

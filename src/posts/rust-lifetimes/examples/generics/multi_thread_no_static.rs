@@ -1,13 +1,13 @@
-fn print_on_secondary_thread<TextT: AsRef<str> + Send + Sync>(text: TextT) {
-	//                                                        ^^^^
-	//                                text may not live long enough
+fn print_on_secondary_thread<TextT: AsRef<str> + Send>(text: TextT) {
+	//                                                 ^^^^
+	//                         text may not live long enough
 	std::thread::spawn(move || {
 		let as_str = text.as_ref();
 		println!("{as_str} from another thread");
 	});
 }
 fn main() {
-	// This allows passing both a &'static str
+	// This allows passing a &'static str
 	print_on_secondary_thread("hi");
 
 	let owned = "hello".to_string();
