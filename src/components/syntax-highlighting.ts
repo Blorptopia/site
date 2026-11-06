@@ -7,6 +7,7 @@ import "prismjs/components/prism-csv.js";
 import "prismjs/components/prism-json.js";
 import "prismjs/components/prism-bash.js";
 import "prismjs/components/prism-rust.js";
+import "prismjs/components/prism-yaml.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import Theme from "prismjs/themes/prism-tomorrow.css?raw";
 

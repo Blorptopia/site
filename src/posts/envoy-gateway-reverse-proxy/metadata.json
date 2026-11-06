@@ -1,0 +1,6 @@
+{
+	"id": "01a1a18d-f6ce-76bc-83e0-e3f8da6a81fe",
+	"title": "How to use Envoy Gateway as a makeshift reverse proxy",
+	"summary": "A tutorial on how to use Envoy Gateway as a reverse proxy against services hosted outside Kubernetes",
+	"published_at": "2026-11-15"
+}

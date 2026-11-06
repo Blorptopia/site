@@ -1,0 +1,48 @@
+{% extends "posts/base.html" %}
+
+{% block head -%}
+	{{ super() }}
+	<script src="/components/syntax-highlighting.ts" type="module" async></script>
+{% endblock %}
+{% block post_content -%}
+	<h1>{{ post_metadata.title }}</h1>
+	<p>
+		While Envoy Gateway is meant to be used as a reverse proxy for services hosted <em>inside</em> your Kubernetes cluster, the only thing stopping you from pointing it at external services is a bit of Kubernetes wrangling.
+	</p>
+	<h2>Your first proxied endpoint</h2>
+	<p>
+		You start by setting up an <code>HTTPRoute</code> and <code>Service</code> like normal, with the only difference being that the <code>Service</code> should not have any selector set.
+	</p>
+	<bb-syntax-highlighting language="yaml" contents="{{ open_relative("examples/resources/service.yaml").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		The reason that you don't set a selector on the <code>Service</code> is that the selector only supports selecting pods - not external services.
+	</p>
+	<p>
+		Now that you have created the <code>HTTPRoute</code> and <code>Service</code>, you should be able to make a request through the <code>HTTPRoute</code> - though you will get an error similar to "no healthy upstream" because we don't have any upstreams (<code>EndpointSlice</code>s) registered. This is something Kubernetes usually registers for us when we give a selector to the <code>Service</code>. However, since we don't specify a selector, we have to create our own <code>EndpointSlice</code>.
+	</p>
+	<bb-syntax-highlighting language="yaml" contents="{{ open_relative("examples/resources/endpoint-slice.yaml").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		Note that the value of the <code>kubernetes.io/service-name</code> label needs to be the same as the name of your <code>Service</code>.
+	</p>
+	<h2>Oh no, TLS!</h2>
+	<p>
+		In a typical Kubernetes setup, your services operate over HTTP while TLS is the responsibility of the gateway.
+		If your backend uses HTTPS, this assumption breaks. To support this, we need to opt in to using TLS to the endpoint via a <code>BackendTLSPolicy</code>.
+	</p>
+	<bb-syntax-highlighting language="yaml" contents="{{ open_relative("examples/resources/tls/tls-policy.yaml").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		Note that the <code>hostname</code> here needs to match the hostname on the certificate, as the standard does not allow implying it via the endpoint IP.
+	</p>
+	<h2>What about self-signed certificates?</h2>
+	<p>
+		If your backend uses a certificate that isn't trusted by your system's trust store, your CNI will fail to connect to it, and your request will fail. To support this, you need to add the root authority that signed your certificate to your <code>BackendTLSPolicy</code>. 
+	</p>
+	<p>
+		The first step is to find the root certificate that signs the certificate you want to trust. Once you have it, place it into a <code>ConfigMap</code> like this:
+	</p>
+	<bb-syntax-highlighting language="yaml" contents="{{ open_relative("examples/resources/tls/self-signed/ca.yaml").read() | escape }}"></bb-syntax-highlighting>
+	<p>
+		Now that we have the certificate authority in a <code>ConfigMap</code>, we can update our <code>BackendTLSPolicy</code> to use it:
+	</p>
+	<bb-syntax-highlighting language="yaml" contents="{{ open_relative("examples/resources/tls/self-signed/tls-policy.yaml").read() | escape }}"></bb-syntax-highlighting>
+{% endblock %}

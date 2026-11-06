@@ -1,0 +1,16 @@
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: endpoint-slice-name
+  namespace: namespace-name
+  labels:
+    kubernetes.io/service-name: service-name
+addressType: IPv4
+ports:
+  - port: 80
+    protocol: TCP
+endpoints:
+  - addresses:
+      - "10.0.0.1"
+    conditions:
+      ready: true

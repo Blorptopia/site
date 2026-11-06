@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: tls-policy-name
+  namespace: namespace-name
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: service-name
+  validation:
+    hostname: example.com
+    caCertificateRefs:
+      - group: ""
+        kind: ConfigMap
+        name: my-org-ca
