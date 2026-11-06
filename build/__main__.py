@@ -8,6 +8,7 @@ import time
 from .builder import build_site
 from .commands.live import serve_live
 from .commands.gen import gen_post, gen_project
+from .commands.webmention import send_webmentions
 
 _log = logging.getLogger(__name__)
 
@@ -51,6 +52,12 @@ async def main() -> None:
 	gen_project_parser.add_argument("title", help="The title of the project")
 	gen_project_parser.add_argument("--slug", help="The name of the project in the URL and the filesystem. This should ideally be memorable, short and never changing.")
 
+	webmention_parser = subcommand_parser.add_parser("webmention")
+	webmention_subcommand_parser = webmention_parser.add_subparsers(dest="webmention_subcommand")
+
+	send_webmention_parser = webmention_subcommand_parser.add_parser("send", help="Sends webmentions to the sites mentioned")
+	send_webmention_parser.add_argument("--public-origin", help="The origin of the site. This is used to resolve local paths into absolute URLs", default="https://blorptopia.dev")
+
 	parsed = root_parser.parse_args()
 	_log.debug("parsed: %s", parsed)
 	command: typing.Literal["live", "dist", "gen", None] = parsed.subcommand
@@ -72,6 +79,14 @@ async def main() -> None:
 			await gen_project(parsed.root_path, parsed.title, slug=parsed.slug)
 		else:
 			root_parser.print_help()
+	elif command == "webmention":
+		webmention_subcommand: typing.Literal["send"] = parsed.webmention_subcommand
+
+		if webmention_subcommand == "send":
+			await send_webmentions(parsed.root_path, parsed.public_origin)
+		else:
+			root_parser.print_help()
+		
 	else:
 		root_parser.print_help()
 
