@@ -42,7 +42,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 			if not metadata_path.is_file():
 				_log.warning("metadata.json missing for post %s", slug)
 				continue
-			with metadata_path.open() as f:
+			with metadata_path.open(encoding="utf-8") as f:
 				# TODO: Validate against model
 				per_post_metadata[slug] = json.load(f)
 		await asyncio.gather(*[context.render_post(slug, metadata) for slug, metadata in per_post_metadata.items()])
@@ -56,7 +56,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 		)
 		
 		# Render projects
-		with (source_path / "projects" / "metadata.json").open() as f:
+		with (source_path / "projects" / "metadata.json").open(encoding="utf-8") as f:
 			# TODO: Validate against model
 			projects_metadata = json.load(f)
 		per_project_metadata: dict[str, ProjectMetadata] = {}
@@ -68,7 +68,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 			if not metadata_path.is_file():
 				_log.warning("metadata.json missing for post %s", slug)
 				continue
-			with metadata_path.open() as f:
+			with metadata_path.open(encoding="utf-8") as f:
 				# TODO: Validate against model
 				per_project_metadata[slug] = json.load(f)
 		await asyncio.gather(*[context.render_project(slug, metadata, projects_metadata, per_post_metadata) for slug, metadata in per_project_metadata.items()])
