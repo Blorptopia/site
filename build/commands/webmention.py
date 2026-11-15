@@ -8,7 +8,6 @@ from urllib.parse import urlsplit
 from urllib.robotparser import RobotFileParser
 from collections import defaultdict
 import asyncio
-import enum
 import time
 
 USER_AGENT_NAME = "BlorptopiaSSG"
@@ -33,7 +32,9 @@ async def send_webmentions(root_path: Path, public_origin: str) -> None:
 		send_webmention_tasks: dict[_WebMention, asyncio.Task[None]] = {}
 		for mention in mentions:
 			send_webmention_tasks[mention] = asyncio.create_task(_send_webmention(client_session, robots_fetcher, mention))
-		await asyncio.wait((task for task in send_webmention_tasks.values()))
+		# We only call asyncio.wait if we have any tasks to wait for, as it errors if called with no tasks.
+		if len(send_webmention_tasks) > 0:
+			await asyncio.wait((task for task in send_webmention_tasks.values()))
 		origin_to_errors: defaultdict[str, list[Exception]] = defaultdict(list)
 
 		for mention, task in send_webmention_tasks.items():
@@ -69,8 +70,9 @@ async def _send_webmention(
 	parsed_target_url = urlsplit(mention.target)
 	origin = f"{parsed_target_url.scheme}://{parsed_target_url.netloc}"
 	robots = await robots_fetcher.fetch_robots(origin)
-	if not robots.can_fetch(USER_AGENT_NAME, parsed_target_url.path):
-		raise BlockedByRobotsTxtError()
+	if robots is not None:
+		if not robots.can_fetch(USER_AGENT_NAME, parsed_target_url.path):
+			raise BlockedByRobotsTxtError()
 	await robots_fetcher.wait_for_next_request_slot(origin)
 	response = await client_session.get(mention.target)
 	response.raise_for_status()
@@ -79,15 +81,16 @@ async def _send_webmention(
 	webmention_element = parsed.select_one("link[rel=\"webmention\"]")
 	if webmention_element is None:
 		raise NoWebMentionEndpointFoundError()
-	webmention_endpoint = webmention_element.attrs["href"]
+	webmention_endpoint = str(webmention_element.attrs["href"])
 	_log.debug("webmention endpoint for %s is %s", mention.target, webmention_endpoint)
 	webmention_parsed_endpoint = urlsplit(webmention_endpoint)
 	webmention_origin = f"{webmention_parsed_endpoint.scheme}://{webmention_parsed_endpoint.netloc}"
 	webmention_robots = await robots_fetcher.fetch_robots(webmention_origin)
 
 
-	if not webmention_robots.can_fetch(USER_AGENT_NAME, webmention_endpoint):
-		raise BlockedByRobotsTxtError()
+	if webmention_robots is not None:
+		if not webmention_robots.can_fetch(USER_AGENT_NAME, webmention_endpoint):
+			raise BlockedByRobotsTxtError()
 	await robots_fetcher.wait_for_next_request_slot(webmention_origin)
 	_log.debug("sending webmention for %s to %s", mention.target, webmention_endpoint)
 	response = await client_session.post(webmention_endpoint, data={
@@ -137,7 +140,9 @@ class RobotsFetcher:
 			now = time.time()
 			crawl_delay = 0
 			if robots is not None:
-				crawl_delay = robots.crawl_delay(USER_AGENT_NAME) or crawl_delay
+				raw_crawl_delay = robots.crawl_delay(USER_AGENT_NAME)
+				if raw_crawl_delay is not None:
+					crawl_delay = float(raw_crawl_delay) or crawl_delay
 			next_fetch_at = self._origin_to_last_fetch[origin] + crawl_delay
 			sleep_duration = next_fetch_at - now
 			_log.debug("sleeping for %.2f for fetch to %s", sleep_duration, origin)
@@ -161,7 +166,7 @@ class _WebMention:
 	source: str
 	target: str
 
-def _find_webmentions(dist_path: Path, public_origin: str) -> list[_WebMention]:
+def _find_webmentions(dist_path: Path, public_origin: str) -> set[_WebMention]:
 	mentions: set[_WebMention] = set()
 	for html_file_path in dist_path.glob("**/*.html"):
 		source_url = _get_url_for_file(html_file_path, public_origin, dist_path)
@@ -178,7 +183,7 @@ def _find_webmentions(dist_path: Path, public_origin: str) -> list[_WebMention]:
 					_log.warning("found webmention anchor without any href in %s", html_file_path)
 					continue
 
-				parsed_target_url = urlsplit(raw_target_url)
+				parsed_target_url = urlsplit(str(raw_target_url))
 				target_url = f"{parsed_target_url.scheme}://{parsed_target_url.netloc}{parsed_target_url.path}"
 
 				mentions.add(_WebMention(source=source_url, target=target_url))
