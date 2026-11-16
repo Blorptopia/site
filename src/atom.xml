@@ -14,7 +14,7 @@
 		<id>urn:uuid:{{ post_metadata.id }}</id>
 		<title>{{ post_metadata.title }}</title>
 		<summary>{{ post_metadata.summary }}</summary>
-		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/{{ slug }}/"/>
+		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/{{ slug }}/?utm_source=atom-feed"/>
 		<published>{{ post_metadata.published_at }}</published>
 		{% if "updated_at" in post_metadata %}
 			<updated>{{ post_metadata.updated_at }}</updated>
