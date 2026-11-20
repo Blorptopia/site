@@ -40,7 +40,7 @@ jobs:
       - name: Install python dependencies
         run: poetry install
       - name: Build
-        run: poetry run python -m build dist
+        run: poetry run python -m ssg dist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -49,6 +49,6 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Send WebMentions
-        run: poetry run python -m build webmention send
+        run: poetry run python -m ssg webmention send
 
 
