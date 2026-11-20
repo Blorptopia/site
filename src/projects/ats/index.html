@@ -1,4 +1,9 @@
 {% extends "projects/base.html" %}
+{% import "components/gallery/index.html" as gallery with context %}
+{% block head %}
+	{{ super() }}
+	{{ gallery.imports() }}
+{% endblock %}
 {% block page_content %}
 	{{ super() }}
 	<h2>Functionality</h2>
@@ -20,4 +25,8 @@
 		Previously I was manually tracking this in a markdown document, however with time it became harder to track <i>when</i> things happened in the interview process.
 		I eventually moved over to manually tracking this in a postgres database with a few views, however this wasn't that practical and I had the tendence to forget the where clause when updating and not notice before committing the transaction.
 	</p>
+	<h2>Gallery</h2>
+	<div class="gallery">
+		{{ gallery.item("images/applications.png", "Page showing list of job applications, containing either a rejected or pending status and applied at date per application") }}
+	</div>
 {% endblock %}
