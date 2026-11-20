@@ -45,10 +45,10 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 			with metadata_path.open(encoding="utf-8") as f:
 				# TODO: Validate against model
 				per_post_metadata[slug] = json.load(f)
-		await asyncio.gather(*[context.render_post(slug, metadata) for slug, metadata in per_post_metadata.items()])
+		[context.render_post(slug, metadata) for slug, metadata in per_post_metadata.items()]
 
 		# Render the post index
-		await context.render_template(
+		context.render_template(
 			source_path / "posts" / "index.html",
 			context={
 				"per_post_metadata": per_post_metadata,
@@ -71,10 +71,10 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 			with metadata_path.open(encoding="utf-8") as f:
 				# TODO: Validate against model
 				per_project_metadata[slug] = json.load(f)
-		await asyncio.gather(*[context.render_project(slug, metadata, projects_metadata, per_post_metadata) for slug, metadata in per_project_metadata.items()])
+		[context.render_project(slug, metadata, projects_metadata, per_post_metadata) for slug, metadata in per_project_metadata.items()]
 
 		# Render the project index
-		await context.render_template(
+		context.render_template(
 			source_path / "projects" / "index.html",
 			context={
 				"per_project_metadata": per_project_metadata,
@@ -83,7 +83,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 		)
 
 		# Render the site index
-		await context.render_template(
+		context.render_template(
 			source_path / "index.html",
 			context={
 				"per_project_metadata": per_project_metadata,
@@ -93,9 +93,9 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 		)
 
 		# Create "metadata" files like atom feeds and sitemap
-		await context.render_sitemap()
-		await context.render_template(source_path / "atom.xml", output_path=Path("public/atom.xml"), context={"per_post_metadata": per_post_metadata})
-		await context.render_template(source_path / "robots.txt", output_path=Path("public/robots.txt"))
+		context.render_sitemap()
+		context.render_template(source_path / "atom.xml", output_path=Path("public/atom.xml"), context={"per_post_metadata": per_post_metadata})
+		context.render_template(source_path / "robots.txt", output_path=Path("public/robots.txt"))
 
 		# Compile it all into one vite distribution bundle.
 		await context.build_dist_bundle(dist_path)
@@ -141,10 +141,6 @@ class _BuildContext:
 		self._vite_output = vite_output
 		self._jinja_environment = jinja2.Environment(
 			loader=jinja2.FileSystemLoader(source_path),
-			# While we don't currently use async in any of our templates, we want to in the future
-			# for things like open_relative to reduce build times
-			# However for now, this is currently unused
-			enable_async=True,
 			extensions=[
 				DebugExtension
 			]
@@ -167,7 +163,7 @@ class _BuildContext:
 			destination_path.parent.mkdir(parents=True, exist_ok=True)
 			shutil.copy(path, destination_path)
 
-	async def render_template(self, template_path: Path, context: dict[str, typing.Any] | None = None, output_path: Path | None = None) -> None:
+	def render_template(self, template_path: Path, context: dict[str, typing.Any] | None = None, output_path: Path | None = None) -> None:
 		"""
 		Renders a template from the template path to the vite directory
 		
@@ -219,7 +215,7 @@ class _BuildContext:
 			"public_origin": self._public_origin
 		})
 
-		output = await template.render_async(**context)
+		output = template.render(**context)
 		
 		if output_path is None:
 			output_path = self._vite_root / template_path_relative_to_source
@@ -231,7 +227,7 @@ class _BuildContext:
 			f.write(output)
 		_log.debug("rendered template %s", template_path_relative_to_source)
 
-	async def render_sitemap(self) -> None:
+	def render_sitemap(self) -> None:
 		"""
 		Renders a sitemap into the vite build root
 		
@@ -239,7 +235,7 @@ class _BuildContext:
 		"""
 		html_paths = self._vite_root.glob("**/*.html")
 		page_urls = [self._get_page_url_for(html_path) for html_path in html_paths]
-		await self.render_template(
+		self.render_template(
 			Path("src/sitemap.xml"),
 			context={
 				"page_urls": page_urls
@@ -249,10 +245,10 @@ class _BuildContext:
 			output_path=Path("public/sitemap.xml")
 		)
 
-	async def render_post(self, slug: str, metadata: PostMetadata) -> None:
-		await self.render_template(self._source_path / "posts" / slug / "index.html", context={"post_metadata": metadata, "ld_json": json.dumps(self.create_blog_post_graph(slug, metadata))})
-	async def render_project(self, slug: str, metadata: ProjectMetadata, projects_metadata: ProjectsMetadata, per_post_metadata: dict[str, PostMetadata]) -> None:
-		await self.render_template(
+	def render_post(self, slug: str, metadata: PostMetadata) -> None:
+		self.render_template(self._source_path / "posts" / slug / "index.html", context={"post_metadata": metadata, "ld_json": json.dumps(self.create_blog_post_graph(slug, metadata))})
+	def render_project(self, slug: str, metadata: ProjectMetadata, projects_metadata: ProjectsMetadata, per_post_metadata: dict[str, PostMetadata]) -> None:
+		self.render_template(
 			self._source_path / "projects" / slug / "index.html",
 			context={
 				"project_metadata": metadata,
