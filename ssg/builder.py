@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import pydantic
 from pathlib import Path
 import shutil
 import typing
@@ -14,6 +15,8 @@ from .models.post import PostMetadata
 from .models.project import ProjectMetadata, ProjectsMetadata
 
 _log = logging.getLogger(__name__)
+ProjectMetadataAdapter = pydantic.TypeAdapter(ProjectMetadata)
+PostMetadataAdapter = pydantic.TypeAdapter(PostMetadata)
 
 async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bool = False, live_reload: bool = False, vite_output: bool = False) -> None:
 	dist_path = root_path / "dist"
@@ -43,8 +46,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 				_log.warning("metadata.json missing for post %s", slug)
 				continue
 			with metadata_path.open(encoding="utf-8") as f:
-				# TODO: Validate against model
-				per_post_metadata[slug] = json.load(f)
+				per_post_metadata[slug] = PostMetadataAdapter.validate_json(f.read())
 		[context.render_post(slug, metadata) for slug, metadata in per_post_metadata.items()]
 
 		# Render the post index
@@ -69,8 +71,7 @@ async def build_site(root_path: Path, public_origin: str, *, keep_build_root: bo
 				_log.warning("metadata.json missing for post %s", slug)
 				continue
 			with metadata_path.open(encoding="utf-8") as f:
-				# TODO: Validate against model
-				per_project_metadata[slug] = json.load(f)
+				per_project_metadata[slug] = ProjectMetadataAdapter.validate_json(f.read())
 		[context.render_project(slug, metadata, projects_metadata, per_post_metadata) for slug, metadata in per_project_metadata.items()]
 
 		# Render the project index
