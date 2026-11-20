@@ -1,0 +1,7 @@
+{% macro imports() %}
+	<link rel="stylesheet" href="/components/gallery/index.css">
+{% endmacro %}
+{% macro item(url, alt) %}
+	<img src="{{ url | escape }}" alt="{{ alt | escape }}"</img>
+{% endmacro %}
+

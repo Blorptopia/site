@@ -1,4 +1,9 @@
 {% extends "projects/base.html" %}
+{% import "components/gallery/index.html" as gallery with context %}
+{% block head %}
+	{{ super() }}
+	{{ gallery.imports() }}
+{% endblock %}
 {% block page_content %}
 	{{ super() }}
 	<h2>What does fightclub allow you to do?</h2>
@@ -7,5 +12,7 @@
 		You can either use block based programming, or you can use Python-scripting.
 	</p>
 	<h2>Gallery</h2>
-	<img src="./images/gamepad.png" alt="A grid of tiles with directional buttons and a claw toggle. The elements are styled like LEGOs where the empty tiles are studs.">
+	<div class="gallery">
+		{{ gallery.item("images/gamepad.png", "A grid of tiles with directional buttons and a claw toggle. The elements are styled like LEGOs where the empty tiles are studs.") }}
+	</div>
 {% endblock %}
