@@ -9,7 +9,7 @@
 		<name>Blorptopia</name>
 	</author>
 	
-	{% for slug, post_metadata in per_post_metadata.items() -%}
+	{% for slug, post_metadata in per_post_metadata.items() | rejectattr("1.published_at", "undefined") -%}
 	<entry>
 		<id>urn:uuid:{{ post_metadata.id }}</id>
 		<title>{{ post_metadata.title }}</title>

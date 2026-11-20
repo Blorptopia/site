@@ -9,7 +9,7 @@
 	<main>
 		<h1>Posts</h1>
 		<ol id="posts">
-			{% for slug, metadata in per_post_metadata.items() | sort(attribute="1.published_at", reverse=True) -%}
+			{% for slug, metadata in per_post_metadata.items() | rejectattr("1.published_at", "undefined") | sort(attribute="1.published_at", reverse=True) -%}
 				<li><time class="published-at">{{ metadata.published_at }}</time> <a href="/posts/{{ slug }}/">{{metadata.title}}</a></li>
 			{% endfor %}
 		</ol>

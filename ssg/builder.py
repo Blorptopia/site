@@ -379,13 +379,14 @@ class _BuildContext:
 			"headline": post["title"],
 			"description": post["summary"],
 			"abstract": post["summary"],
-			"datePublished": post["published_at"],
 			"author": {
 				"@type": "Person",
 				"name": "Blorptopia",
 				"url": f"{self._public_origin}/#person"
 			}
 		}
+		if "published_at" in post:
+			article["datePublished"] = post["published_at"]
 		if "updated_at" in post:
 			article["dateModified"] = post["updated_at"]
 		return {

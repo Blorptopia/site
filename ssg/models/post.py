@@ -10,6 +10,6 @@ class PostMetadata(typing.TypedDict):
 	id: str
 	title: str
 	summary: str
-	published_at: str
+	published_at: typing.NotRequired[str]
 	updated_at: typing.NotRequired[str]
 
