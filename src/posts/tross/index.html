@@ -16,17 +16,17 @@
 			Serializing is the part of taking an array of records and converting them into a string to write to the CSV file.
 			So you would need to take something like
 		</p>
-		<bb-syntax-highlighting language="typescript" contents="[&#10;&#9;{&#10;&#9;&#9;name: &quot;Skinner&quot;&#10;&#9;&#9;food: &quot;Steamed hams&quot;,&#10;&#9;},&#10;&#9;{&#10;&#9;&#9;name: &quot;Chalmers&quot;&#10;&#9;&#9;food: &quot;Hamburgers&quot;,&#10;&#9;},&#10;]&#10;"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="json" contents="{{ open_relative("examples/basic.json").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			and turn it into
 		</p>
-		<bb-syntax-highlighting language="csv" contents="name,food&#10;Skinner,Steamed Hams&#10;Chalmers,Hamburgers"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="csv" contents="{{ open_relative("examples/basic.csv").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			This contains two parts, the header line describing the names of the columns, and then each subsequent line is the values of rows.
 
 			If we ignore that the input can contain control characters for a minute, this is actually quite easy to implement
 		</p>
-		<bb-syntax-highlighting language="typescript" contents="function serializeCsv(rows, columns) {&#10;&#9;const lines = [&#10;&#9;&#9;columns,&#10;&#9;&#9;...rows.map(row => columns.map(key => row[key]))&#10;&#9;];&#10;&#9;return lines.map(serializeValues).join(&quot;\n&quot;);&#10;}&#10;function serializeValues(values) {&#10;&#9;return values.join(&quot;,&quot;);&#10;}&#10;&#10;const output = serializeCsv([&#10;&#9;{&#10;&#9;&#9;name: &quot;Skinner&quot;,&#10;&#9;&#9;food: &quot;Steamed hams&quot;&#10;&#9;},&#10;&#9;{&#10;&#9;&#9;name: &quot;Chalmers&quot;,&#10;&#9;&#9;food: &quot;Hamburgers&quot;&#10;&#9;}&#10;])"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="typescript" contents="{{ open_relative("examples/simple_serializer.ts").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			The reason we are taking in columns explicitly here instead of detecting it from the first row is that the columns can never change, and we also need to emit the header line even if no rows are present.
 		</p>
@@ -35,25 +35,25 @@
 			The simple setup described above works really well as long as none of the control characters like newlines or commas are included in the input.
 			If we imagine this input
 		</p>
-		<bb-syntax-highlighting language="typescript" contents="[&#10;&#9;{&#10;&#9;&#9;index: &quot;0&quot;,&#10;&#9;&#9;lines: &quot;line 0\nline 1&quot;&#10;&#9;},&#10;&#9;{&#10;&#9;&#9;index: &quot;1&quot;,&#10;&#9;&#9;lines: &quot;line 2\nline 3&quot;&#10;&#9;}&#10;]&#10;&#10;"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="typescript" contents="{{ open_relative("examples/with_newlines.json").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			the current code would turn that into
 		</p>
-		<bb-syntax-highlighting language="csv" contents="index,lines&#10;0,line0&#10;line1&#10;1,line2&#10;line3&#10;"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="csv" contents="{{ open_relative("examples/broken_with_newlines.csv").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			which would be really confusing to parse. CSV solves this by allowing you to escape values by quoting them
 		</p>
-		<bb-syntax-highlighting language="csv" contents="index,lines&#10;0,&quot;line 0&#10;line1&quot;&#10;1,&quot;line2&#10;line3&quot;"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="csv" contents="{{ open_relative("examples/with_newlines.csv").read() | escape }}"></bb-syntax-highlighting>
 		<p>which makes it slightly easier to understand. The same thing goes for commas</p>
-		<bb-syntax-highlighting language="csv" contents="column1,column2&#10;&quot;-> , <- this is a comma inside a column&quot;,actually the second column"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="csv" contents="{{ open_relative("examples/comma.csv").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			However what about double quotes itself? Well that is solved by quoting the column and converting quotes inside the column to double quotes to differentiate themselves from quotes at the start and end of a column
 		</p>
-		<bb-syntax-highlighting language="csv" contents="text&#10;&quot; &quot;&quot; <- this is one double quote&quot;"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="csv" contents="{{ open_relative("examples/quote.csv").read() | escape }}"></bb-syntax-highlighting>
 		<p>
 			In the end we end up with an <code>escapeValue</code> function that we pass all values through
 		</p>
-		<bb-syntax-highlighting language="typescript" contents="export function escapeValue(text) {&#10;&#9;if (&#10;&#9;&#9;text.includes(&quot;\n&quot;) ||&#10;&#9;&#9;text.includes(&quot;\&quot;&quot;) ||&#10;&#9;&#9;text.includes(&quot;,&quot;)&#10;&#9;) {&#10;&#9;&#9;let escapedText = text.replaceAll(&quot;\&quot;&quot;, &quot;\&quot;\&quot;&quot;);&#10;&#9;&#9;return `&quot;${escapedText}&quot;`;&#10;&#9;} else {&#10;&#9;&#9;return text;&#10;&#9;}&#10;}&#10;&#10;"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="typescript" contents="{{ open_relative("examples/escape_value.ts").read() | escape }}"></bb-syntax-highlighting>
 
 		<section id="streaming-serializing">
 			<h3>Streaming</h3>
@@ -76,13 +76,13 @@
 
 				We do this with a custom pull-based worker pool instead of a normal push-based worker pool as it allows the user to feed us whatever sized chunks and as long as our buffer is large enough when a worker is available, we send the optimal task size to the worker. The pull based worker pool is also built around a poll function, not a <code>AsyncIterator</code>.
 			</p>
-			<bb-syntax-highlighting language="typescript" contents="// Poll based&#10;const workerPool = new WorkerPool({&#10;&#9;poll: () => {&#10;&#9;&#9;return remainingTasks.pop() ?? null;&#10;&#9;}&#10;&#9;...&#10;});&#10;workerPool.startPolling();&#10;&#10;// AsyncIterator based&#10;const workerPool = new WorkerPool({&#10;&#9;stream: async function*() {&#10;&#9;&#9;while (true) {&#10;&#9;&#9;&#9;const task = remainingTasks.pop();&#10;&#9;&#9;&#9;if (task === undefined) {&#10;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;yield task;&#10;&#9;&#9;}&#10;&#9;}&#10;})"></bb-syntax-highlighting>
+			<bb-syntax-highlighting language="typescript" contents="{{ open_relative("examples/poll_vs_iterator.ts").read() | escape }}"></bb-syntax-highlighting>
 			<p>
 				While yes you should <em>generally</em> follow standards, the reason I decided to deviate was that an <code>AsyncIterator</code> holds a value pending at all times, instead of poll where the value is only generated <em>when requested</em>. This is one of the things allowing us to change the prioritization of tasks right up until we sent it to the worker.
 			</p>
 			<bb-tross-poll-iterator-comparison-visualization></bb-tross-poll-iterator-comparison-visualization>
 			<p>
-			Since this is targeting both browser and node, we use <a href="https://www.npmjs.com/package/web-worker">the web-worker wrapper around web workers and node's worker_threads</a>.
+			Since this is targeting both browser and node, we use <a href="https://www.npmjs.com/package/web-worker" rel="webmention">the web-worker wrapper around web workers and node's worker_threads</a>.
 			</p>
 		</section>
 	</section>
@@ -147,7 +147,7 @@
 
 			However there's one CSV feature not mentioned yet: the separator header
 		</p>
-			<bb-syntax-highlighting language="csv" contents="sep=;&#10;Column 1 name;Column 2 name&#10;Value;Another value"></bb-syntax-highlighting>
+		<bb-syntax-highlighting language="csv" contents="{{ open_relative("examples/seperator_header.csv").read() | escape}}"></bb-syntax-highlighting>
 		<p>
 			This is non-standard and from what I can find, is only used by some Microsoft products.
 			I'm going to leave it up to you to figure out how you would implement it yourself. Good luck!
